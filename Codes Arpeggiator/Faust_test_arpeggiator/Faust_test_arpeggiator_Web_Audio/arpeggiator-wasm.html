@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <center>
+    <h1>Test Arpeggiator avec Faust + Wasm </h1>
+    <p>Audio</p>
+    <audio controls id="file" onplay="ctx.resume()"  src="audio\pianoprepare48K.wav" loop="true"></audio>
+
+
+    <p>Gain</p>
+    <input type="range" id="gain" min="0." max="1" value="0.5" step="0.01">
+    <span id="gainLabel"> </span>
+
+    <p>Durée Delay</p>
+    <input type="range" id="dur" min="0" max="2000" value="500" step="1">
+    <span id="durLabel"> ms </span>
+    
+    <p>Feedback</p>
+    <input type="range" id="fdbk" min="0." max="0.999" value="0" step="0.001">
+    <span id="fdbkLabel"> </span>
+
+    <p>Pitch Shift</p>
+    <input type="range" id="shift" min="-24" max="24" value="0" step="0.01">
+    <span id="shiftLabel"> </span>
+
+    <p>Panoramique Rate</p>
+    <input type="range" id="rate" min="0" max="1" value="0" step="0.001">
+    <span id="rateLabel"> </span>
+
+    <br>
+    <br>
+
+    <div class = presets> 
+        <button id="preset1">Preset 1 <br> dur : 100 <br> fdbk : 0.8 <br> shift : 5 <br> gain : 0.9 <br> rate : 0</button>
+        <span>
+            <button id="preset2">Preset 2  <br> dur : 10 <br> fdbk : 0.75 <br> shift : 5 <br> gain : 0.9 <br> rate : 0.2 </button>
+            <button id="preset3">Preset 3  <br> dur : 330 <br> fdbk : 0.5 <br> shift : 2 <br> gain : 1 <br> rate : 0.85</button>
+            <button id="preset4">Preset 4  <br> dur : 330 <br> fdbk : 0.5 <br> shift : -3 <br> gain : 1 <br> rate : 0.85 </button>
+            <button id="preset5">Preset 5  <br> dur : 10 <br> fdbk : 0.75 <br> shift : 10 <br> gain : 0.9 <br> rate : 0.5 </button>
+           </span>
+    
+        </div>
+
+    </center>
+
+    <script src="arpeggiator.js"></script>
+
+
+
+    <script>
+
+        var ctx = new AudioContext() || window.webkitAudioContext() ;
+
+        var source = ctx.createMediaElementSource(file);
+
+        const amp = ctx.createGain();
+
+        var arpeggiator_dsp = null;
+
+        gain.oninput = function(){
+            var val = event.target.value;
+            val = parseFloat(val);
+            arpeggiator_dsp.setParamValue("/arpeggiator/amp/gain", val);
+            gainLabel.innerHTML = val;
+        }
+
+        dur.oninput = function(){
+            var val = event.target.value;
+            val = parseFloat(val);
+            arpeggiator_dsp.setParamValue("/arpeggiator/delay/dur", val);
+            durLabel.innerHTML = val;
+        }
+
+        fdbk.oninput = function(){
+            var val = event.target.value;
+            val = parseFloat(val);
+            arpeggiator_dsp.setParamValue("/arpeggiator/delay/fdbk", val);
+            fdbkLabel.innerHTML = val;
+        }
+
+        shift.oninput = function(){
+            var val = event.target.value;
+            val = parseFloat(val);
+            arpeggiator_dsp.setParamValue("/arpeggiator/pitchshift/shift", val);
+            shiftLabel.innerHTML = val;
+        }
+
+        rate.oninput = function(){
+            var val = event.target.value;
+            val = parseFloat(val);
+            arpeggiator_dsp.setParamValue("/arpeggiator/pan/rate", val);
+            rateLabel.innerHTML = val;
+        }
+
+        preset1.onclick = function(){
+            arpeggiator_dsp.setParamValue("/arpeggiator/delay/dur", 100);
+            arpeggiator_dsp.setParamValue("/arpeggiator/delay/fdbk", 0.8);
+            arpeggiator_dsp.setParamValue("/arpeggiator/pitchshift/shift", 5);
+            arpeggiator_dsp.setParamValue("/arpeggiator/amp/gain", 0.9);
+            arpeggiator_dsp.setParamValue("/arpeggiator/pan/rate", 0.5);
+        }
+
+        preset2.onclick = function(){
+            arpeggiator_dsp.setParamValue("/arpeggiator/delay/dur", 10);
+            arpeggiator_dsp.setParamValue("/arpeggiator/delay/fdbk", 0.75);
+            arpeggiator_dsp.setParamValue("/arpeggiator/pitchshift/shift", 5);
+            arpeggiator_dsp.setParamValue("/arpeggiator/amp/gain", 0.9);
+            arpeggiator_dsp.setParamValue("/arpeggiator/pan/rate", 0.2);
+        }
+
+        preset3.onclick = function(){
+            arpeggiator_dsp.setParamValue("/arpeggiator/delay/dur", 330);
+            arpeggiator_dsp.setParamValue("/arpeggiator/delay/fdbk", 0.5);
+            arpeggiator_dsp.setParamValue("/arpeggiator/pitchshift/shift", 2);
+            arpeggiator_dsp.setParamValue("/arpeggiator/amp/gain", 1);
+            arpeggiator_dsp.setParamValue("/arpeggiator/pan/rate", 0.85);
+        }
+
+        preset4.onclick = function(){
+            arpeggiator_dsp.setParamValue("/arpeggiator/delay/dur", 300);
+            arpeggiator_dsp.setParamValue("/arpeggiator/delay/fdbk", 0.5);
+            arpeggiator_dsp.setParamValue("/arpeggiator/pitchshift/shift", -3);
+            arpeggiator_dsp.setParamValue("/arpeggiator/amp/gain", 1);
+            arpeggiator_dsp.setParamValue("/arpeggiator/pan/rate", 0.85);
+        }
+
+        preset5.onclick = function(){
+            arpeggiator_dsp.setParamValue("/arpeggiator/delay/dur", 10);
+            arpeggiator_dsp.setParamValue("/arpeggiator/delay/fdbk", 0.75);
+            arpeggiator_dsp.setParamValue("/arpeggiator/pitchshift/shift", 10);
+            arpeggiator_dsp.setParamValue("/arpeggiator/amp/gain", 0.9);
+            arpeggiator_dsp.setParamValue("/arpeggiator/pan/rate", 0.5);
+        }
+
+        function startArpeggiator(){
+            var pluginURL = ".";
+            var plugin = new Faustarpeggiator(ctx, pluginURL);
+            plugin.load().then(node => {
+                arpeggiator_dsp = node;
+                console.log(arpeggiator_dsp.getJSON());
+                console.log(arpeggiator_dsp.getParams());
+                source.connect(arpeggiator_dsp).connect(ctx.destination);
+            });
+        }
+
+        window.addEventListener('load', startArpeggiator);
+
+
+
+
+
+
+
+
+
+
+    </script>
+
+    
+</body>
+</html>

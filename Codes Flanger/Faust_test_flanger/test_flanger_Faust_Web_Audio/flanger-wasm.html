@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <center>
+    <h1> Test Flanger avec Faust + Wasm</h1>
+    <p>Audio</p>
+    <audio controls id="file" onplay="ctx.resume()"  src="audio\debEnEcho.wav" loop="true"></audio> 
+    <p>Rate</p>
+    <input type="range" id="rate" min="0.001" max="0.5" value="0.001" step="0.001">
+    <span id="rateLabel"> Hz</span>
+    
+    <p>Depth</p>
+    <input type="range" id="depth" min="0.001" max="5000" value="0.001" step="0.001">
+    <span id="depthLabel"> </span>
+    
+    <p>Shift</p>
+    <input type="range" id="shift" min="0" max="500" value="0" step="1">
+    <span id="shiftLabel"> </span>
+    
+    <p>Fdbk</p>
+    <input type="range" id="fdbk" min="0." max="1" value="0" step="0.01">
+    <span id="fdbkLabel"> </span>
+
+    <p>Gain général</p>
+    <input type="range" id="gain" min="0." max="1" value="0" step="0.01">
+    <span id="gainLabel"> </span>
+    
+    <br>
+    <br>
+    
+    <div class = presets> 
+        <button id="preset1">Preset 1(vibrato) <br> rate : 1.5 <br> depth : 10 <br> shift : 0 <br> fdbk : 1 </button>
+        <span>
+            <button id="preset2">Preset 2 (glissandi) <br> rate : 0.15 <br> depth : 500 <br> shift : 5 <br> fdbk : 0.6 </button>
+            <button id="preset3">Preset 3 (glissandi) <br> rate : 0.05 <br> depth : 1500 <br> shift : 5 <br> fdbk : 0.6 </button>
+            <button id="preset4">Preset 4 (reset) <br> rate : 0.5 <br> depth : 0 <br> shift : 0 <br> fdbk : 0 </button>
+           </span>
+    
+        </div>
+
+    </center>
+
+    <script src="flanger1.js"></script>
+
+    <script>
+
+        var ctx = new AudioContext() || window.webkitAudioContext() ;
+
+        var source = ctx.createMediaElementSource(file);
+
+        const amp = ctx.createGain();
+
+        var flanger1_dsp = null;
+
+        rate.oninput = function(){
+            var val = event.target.value;
+            val = parseFloat(val);
+            flanger1_dsp.setParamValue("/flanger1/rate", val);
+            rateLabel.innerHTML = val + " Hz";
+        }
+
+        depth.oninput = function(){
+            var val = event.target.value;
+            val = parseFloat(val);
+            flanger1_dsp.setParamValue("/flanger1/depth", val);
+            depthLabel.innerHTML = val;
+        }
+
+        shift.oninput = function(){
+            var val = event.target.value;
+            val = parseFloat(val);
+            flanger1_dsp.setParamValue("/flanger1/shift", val);
+            shiftLabel.innerHTML = val;
+        }
+
+        fdbk.oninput = function(){
+            var val = event.target.value;
+            val = parseFloat(val);
+            flanger1_dsp.setParamValue("/flanger1/fdbk", val);
+            fdbkLabel.innerHTML = val;
+        }
+        
+        gain.oninput = function(){
+            var val = event.target.value;
+            val = parseFloat(val);
+            amp.gain.value = val;
+            gainLabel.innerHTML = val;
+        }
+
+        preset1.onclick = function() {
+            flanger1_dsp.setParamValue("/flanger1/rate", 1.5)
+            flanger1_dsp.setParamValue("/flanger1/depth", 10)
+            flanger1_dsp.setParamValue("/flanger1/shift", 0)
+            flanger1_dsp.setParamValue("/flanger1/fdbk", 1);
+        }
+        
+        preset2.onclick = function() {
+            flanger1_dsp.setParamValue("/flanger1/rate", 0.15)
+            flanger1_dsp.setParamValue("/flanger1/depth", 500)
+            flanger1_dsp.setParamValue("/flanger1/shift", 5)
+            flanger1_dsp.setParamValue("/flanger1/fdbk", 0.6);
+        }
+
+        preset3.onclick = function() {
+            flanger1_dsp.setParamValue("/flanger1/rate", 0.05)
+            flanger1_dsp.setParamValue("/flanger1/depth", 1500)
+            flanger1_dsp.setParamValue("/flanger1/shift", 5)
+            flanger1_dsp.setParamValue("/flanger1/fdbk", 0.6);
+        }
+
+        preset4.onclick = function() {
+            flanger1_dsp.setParamValue("/flanger1/rate", 0.5)
+            flanger1_dsp.setParamValue("/flanger1/depth", 0)
+            flanger1_dsp.setParamValue("/flanger1/shift", 0)
+            flanger1_dsp.setParamValue("/flanger1/fdbk", 0);
+        }
+
+        function startFlanger1() {
+            var pluginURL = ".";
+            var plugin = new Faustflanger1(ctx, pluginURL);
+            plugin.load().then(node => {
+                flanger1_dsp = node;
+                console.log(flanger1_dsp.getJSON());
+                console.log(flanger1_dsp.getParams());
+                source.connect(flanger1_dsp).connect(amp).connect(ctx.destination);
+            });
+        }
+        window.addEventListener('load', startFlanger1);
+
+
+    </script>
+    
+</body>
+</html>
