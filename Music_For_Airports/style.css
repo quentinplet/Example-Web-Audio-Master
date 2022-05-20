@@ -1,0 +1,13 @@
+#mybutton{
+    background-color : rgb(30, 45, 250);
+    }
+
+#mybutton2{
+    background-color : rgb(250, 0, 0);
+
+}
+
+button {
+    width : 200px;
+    height : 200px;
+}
